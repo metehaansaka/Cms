@@ -1,0 +1,26 @@
+
+$path = req::path();
+$pathArray = explode("/",$path);
+
+if (count($pathArray) == 1) {
+  $language_slug = getDefaultLanguage();
+  $slug = $pathArray[0];
+}elseif (count($pathArray) == 2) {
+  $language_slug = $pathArray[0];
+  $slug = $pathArray[1];
+}else {
+  $language_slug = "";
+  $slug = "";
+}
+
+$taxonomy = DB::table('taxonomy')->where('slug',$slug)->where('language_slug',$language_slug)->first();
+if (!$taxonomy or !empty($slug) or !empty($language_slug)) {
+  if (empty($slug)) {
+    Route::get('/', 'Web\BaseController@index');
+  }else {
+    Route::get('/'.$slug, 'Web\\'.$taxonomy->controller);
+    Route::get($language_slug.'/'.$slug, 'Web\\'.$taxonomy->controller);
+  }
+}else {
+  // 404 error
+}
